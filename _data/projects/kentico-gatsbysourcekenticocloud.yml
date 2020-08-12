@@ -1,7 +1,7 @@
 ---
 name: gatsby-source-kentico-cloud
 desc: Gatsby source plugin for Kentico Cloud.
-site: https://github.com/Kentico/gatsby-source-kentico-cloud
+site: https://github.com/Kentico/gatsby-source-kontent
 tags:
 - javascript
 - kentico
@@ -15,7 +15,7 @@ tags:
 - caas
 upforgrabs:
   name: up-for-grabs
-  link: https://github.com/Kentico/gatsby-source-kentico-cloud/labels/up-for-grabs
+  link: https://github.com/Kentico/kontent-gatsby-packages/labels/up-for-grabs
 stats:
-  issue-count: 6
-  last-updated: '2019-09-27T11:44:17Z'
+  issue-count: 3
+  last-updated: '2020-06-02T16:33:57Z'

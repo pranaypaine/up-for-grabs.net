@@ -1,14 +1,19 @@
 ---
 name: U.S. Prosecutor Database
 desc: >-
-  A searchable resource that contains contact information, relevant articles, and other data about U.S.
-  Prosecutors.
-site: https://light-pollution.herokuapp.com
+  An open-source app to help people learn more about the role of prosecutors within the industrial prison
+  complex. Filter through prosecutors by name, role, state, area. Find resources like contact information
+  &amp; relevant articles.
+site: https://us-prosecutor-database.herokuapp.com
 tags:
 - meteor
 - mongodb
+- mlab
 - design
 - ui
+- ux
+- csv
+- python
 - json
 - data
 - css
@@ -22,5 +27,5 @@ upforgrabs:
   name: HELP-WANTED
   link: https://github.com/billimarie/prosecutor-database/labels/HELP-WANTED
 stats:
-  issue-count: 2
-  last-updated: '2019-03-26T21:35:37Z'
+  issue-count: 7
+  last-updated: '2020-08-05T23:05:15Z'

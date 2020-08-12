@@ -1,0 +1,16 @@
+---
+name: home-assistant.io
+desc: A Home Assistant User documentation
+site: https://github.com/home-assistant/home-assistant.io
+tags:
+- documentation
+- jekyll
+- home-assistant
+- hass
+- hassio
+upforgrabs:
+  name: Help wanted
+  link: https://github.com/home-assistant/home-assistant.io/labels/Help%20wanted
+stats:
+  issue-count: 10
+  last-updated: '2020-05-03T19:49:26Z'

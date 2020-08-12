@@ -11,7 +11,7 @@ tags:
 - data-collection
 upforgrabs:
   name: help wanted
-  link: https://github.com/opendatakit/collect/labels/help%20wanted
+  link: https://github.com/getodk/collect/labels/help%20wanted
 stats:
-  issue-count: 16
-  last-updated: '2019-10-12T14:36:16Z'
+  issue-count: 15
+  last-updated: '2020-07-16T16:42:43Z'

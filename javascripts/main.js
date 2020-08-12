@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-/* eslint arrow-parens: [ "error", "as-needed" ] */
+/* eslint no-var: [ "error" ] */
 
 define([
   'jquery',
@@ -13,10 +13,10 @@ define([
   // selector, and needs to be ready before this code runs
   'chosen',
 ], ($, loadProjects, ProjectsService, fetchIssueCount, _, sammy) => {
-  var compiledtemplateFn = null,
+  let compiledtemplateFn = null,
     projectsPanel = null;
 
-  var getFilterUrl = function() {
+  const getFilterUrl = function () {
     return location.href.indexOf('/#/filters') > -1
       ? location.href
       : `${location.href}filters`;
@@ -25,13 +25,13 @@ define([
   // inspired by https://stackoverflow.com/a/6109105/1363815 until I have a better
   // idea of what we want to do here
   function relativeTime(current, previous) {
-    var msPerMinute = 60 * 1000;
-    var msPerHour = msPerMinute * 60;
-    var msPerDay = msPerHour * 24;
-    var msPerMonth = msPerDay * 30;
-    var msPerYear = msPerDay * 365;
+    const msPerMinute = 60 * 1000;
+    const msPerHour = msPerMinute * 60;
+    const msPerDay = msPerHour * 24;
+    const msPerMonth = msPerDay * 30;
+    const msPerYear = msPerDay * 365;
 
-    var elapsed = current - previous;
+    const elapsed = current - previous;
 
     if (elapsed < msPerMinute) {
       return `${Math.round(elapsed / 1000)} seconds ago`;
@@ -52,13 +52,13 @@ define([
     return `about ${Math.round(elapsed / msPerYear)} years ago`;
   }
 
-  var renderProjects = function(projectService, tags, names, labels) {
+  const renderProjects = function (projectService, tags, names, labels) {
     const allTags = projectService.getTags();
 
     projectsPanel.html(
       compiledtemplateFn({
         projects: projectService.get(tags, names, labels),
-        relativeTime: relativeTime,
+        relativeTime,
         tags: allTags,
         popularTags: projectService.getPopularTags(6),
         selectedTags: tags,
@@ -77,7 +77,7 @@ define([
       })
       .val(tags)
       .trigger('chosen:updated')
-      .change(function() {
+      .change(function () {
         location.href = updateQueryStringParameter(
           getFilterUrl(),
           'tags',
@@ -94,7 +94,7 @@ define([
       })
       .val(names)
       .trigger('chosen:updated')
-      .change(function() {
+      .change(function () {
         location.href = updateQueryStringParameter(
           getFilterUrl(),
           'names',
@@ -110,7 +110,7 @@ define([
       })
       .val(labels)
       .trigger('chosen:updated')
-      .change(function() {
+      .change(function () {
         location.href = updateQueryStringParameter(
           getFilterUrl(),
           'labels',
@@ -122,12 +122,12 @@ define([
       .find('ul.popular-tags')
       .children()
       .each((i, elem) => {
-        $(elem).on('click', function() {
+        $(elem).on('click', function () {
           selTags = $('.tags-filter').val() || [];
           selectedTag = preparePopTagName($(this).text() || '');
           if (selectedTag) {
             tagID = allTags
-              .map(tag => tag.name.toLowerCase())
+              .map((tag) => tag.name.toLowerCase())
               .indexOf(selectedTag);
             if (tagID !== -1) {
               selTags.push(selectedTag);
@@ -147,7 +147,7 @@ define([
     it fit URL specification
     @return string - The value of the Name
   */
-  var preparePopTagName = function(name) {
+  let preparePopTagName = function (name) {
     if (name === '') return '';
     return name.toLowerCase().split(' ')[0];
   };
@@ -156,14 +156,14 @@ define([
    * This is a utility method to help update URL Query Parameters
    * @return string - The value of the URL when adding/removing values to it.
    */
-  var updateQueryStringParameter = function(uri, key, value) {
-    var re = new RegExp('([?&])' + key + '=.*?(&|$)', 'i');
-    var separator = uri.indexOf('?') !== -1 ? '&' : '?';
+  let updateQueryStringParameter = function (uri, key, value) {
+    const re = new RegExp(`([?&])${key}=.*?(&|$)`, 'i');
+    const separator = uri.indexOf('?') !== -1 ? '&' : '?';
     if (uri.match(re)) {
-      return uri.replace(re, '$1' + key + '=' + value + '$2');
+      return uri.replace(re, `$1${key}=${value}$2`);
     }
 
-    return uri + separator + key + '=' + value;
+    return `${uri + separator + key}=${value}`;
   };
 
   /**
@@ -173,10 +173,10 @@ define([
    *
    * @return string - value of url params
    */
-  var getParameterByName = function(name, url) {
+  const getParameterByName = function (name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, '\\$&');
-    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+    const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`),
       results = regex.exec(url);
     if (!results) return null;
     if (!results[2]) return '';
@@ -189,7 +189,7 @@ define([
    * Also has corresponding fade-in and fade-out fetaure
    */
   $(window).scroll(() => {
-    var height = $(window).scrollTop();
+    const height = $(window).scrollTop();
     if (height > 100) {
       $('#back2Top').fadeIn();
     } else {
@@ -197,7 +197,7 @@ define([
     }
   });
   $(document).ready(() => {
-    $('#back2Top').click(event => {
+    $('#back2Top').click((event) => {
       event.preventDefault();
       $('html, body').animate({ scrollTop: 0 }, 'slow');
       return false;
@@ -210,16 +210,16 @@ define([
    * @params String text - The text given, indices or names. As long as it is a string
    * @return Array - Returns an array of splitted values if given a text. Otherwise undefined
    */
-  var prepareForHTML = function(text) {
+  const prepareForHTML = function (text) {
     return text ? text.toLowerCase().split(',') : text;
   };
 
-  var issueCount = function(project) {
-    var a = $(project).find('.label a'),
-      gh = a
-        .attr('href')
-        .match(/github.com(\/[^\/]+\/[^\/]+\/)(?:issues\/)?labels\/([^\/]+)$/),
-      count = a.find('.count');
+  const issueCount = function (project) {
+    const a = $(project).find('.label a');
+    const gh = a
+      .attr('href')
+      .match(/github.com(\/[^\/]+\/[^\/]+\/)(?:issues\/)?labels\/([^\/]+)$/);
+    let count = a.find('.count');
 
     if (count.length) {
       return;
@@ -240,10 +240,10 @@ define([
     const labelEncoded = gh[2];
 
     fetchIssueCount(ownerAndName, labelEncoded).then(
-      resultCount => {
+      (resultCount) => {
         count.html(resultCount);
       },
-      error => {
+      (error) => {
         const message = error.message ? error.message : error;
         count.html('?!');
         count.attr('title', message);
@@ -252,9 +252,9 @@ define([
   };
 
   $(() => {
-    var $window = $(window),
+    const $window = $(window),
       onScreen = function onScreen($elem) {
-        var docViewTop = $window.scrollTop(),
+        const docViewTop = $window.scrollTop(),
           docViewBottom = docViewTop + $window.height(),
           elemTop = $elem.offset().top,
           elemBottom = elemTop + $elem.height();
@@ -265,8 +265,8 @@ define([
       };
 
     $window.on('scroll chosen:updated', () => {
-      $('.projects tbody:not(.counted)').each(function() {
-        var project = $(this);
+      $('.projects tbody:not(.counted)').each(function () {
+        const project = $(this);
         if (onScreen(project)) {
           issueCount(project);
           project.addClass('counted');
@@ -277,32 +277,32 @@ define([
     compiledtemplateFn = _.template($('#projects-panel-template').html());
     projectsPanel = $('#projects-panel');
 
-    projectsPanel.on('click', 'a.remove-tag', function(e) {
+    projectsPanel.on('click', 'a.remove-tag', function (e) {
       e.preventDefault();
-      var tags = [];
+      const tags = [];
       projectsPanel
         .find('a.remove-tag')
         .not(this)
-        .each(function() {
+        .each(function () {
           tags.push($(this).data('tag'));
         });
-      var tagsString = tags.join(',');
-      window.location.href = '#/tags/' + tagsString;
+      const tagsString = tags.join(',');
+      window.location.href = `#/tags/${tagsString}`;
     });
 
-    loadProjects().then(p => {
-      var projectsSvc = new ProjectsService(p);
+    loadProjects().then((p) => {
+      const projectsSvc = new ProjectsService(p);
 
-      var app = sammy(function() {
+      const app = sammy(function () {
         /*
          * This is the route used to filter by tags/names/labels
          * It ensures to read values from the URI query param and perform actions
          * based on that. NOTE: It has major side effects on the browser.
          */
         this.get(/\#\/filters/, () => {
-          var labels = prepareForHTML(getParameterByName('labels'));
-          var names = prepareForHTML(getParameterByName('names'));
-          var tags = prepareForHTML(getParameterByName('tags'));
+          const labels = prepareForHTML(getParameterByName('labels'));
+          const names = prepareForHTML(getParameterByName('names'));
+          const tags = prepareForHTML(getParameterByName('tags'));
           renderProjects(projectsSvc, tags, names, labels);
         });
 

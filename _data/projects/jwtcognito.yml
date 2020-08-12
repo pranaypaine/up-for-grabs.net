@@ -1,0 +1,16 @@
+---
+name: gojwtcognito
+desc: Golang package to ease the use of AWS Cognito JWTs.
+site: https://github.com/bruno-chavez/gojwtcognito
+tags:
+- go
+- jwt
+- cognito
+- aws
+- aws-cognito
+upforgrabs:
+  name: good first issue
+  link: https://github.com/bruno-chavez/gojwtcognito/labels/good%20first%20issue
+stats:
+  issue-count: 1
+  last-updated: '2020-06-24T13:18:43Z'

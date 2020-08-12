@@ -240,7 +240,7 @@ describe('fetchIssueCount', () => {
       stubRateLimitError(lastSundayInSeconds);
 
       const expectedError = new Error(
-        'GitHub rate limit met. Reset at ' + lastSunday.toLocaleTimeString()
+        `GitHub rate limit met. Reset at ${lastSunday.toLocaleTimeString()}`
       );
 
       await expect(fetchIssueCount('owner/repo', 'label')).rejects.toEqual(
@@ -248,26 +248,35 @@ describe('fetchIssueCount', () => {
       );
     });
 
-    it('no further API calls made after rate-limiting', done => {
+    it('no further API calls made after rate-limiting', () => {
       const anHourFromNowInTicks = Date.now() + 1000 * 60 * 60;
       const anHourFromNow = new Date(anHourFromNowInTicks);
       const anHourFromNowInSeconds = Math.floor(anHourFromNow.getTime() / 1000);
 
       stubRateLimitError(anHourFromNowInSeconds);
 
-      const makeRequestAndIgnoreError = function() {
-        return fetchIssueCount('owner/repo', 'label').then(() => {}, () => {});
-      };
+      return new Promise((done) => {
+        const makeRequestAndIgnoreError = function () {
+          return fetchIssueCount('owner/repo', 'label').then(
+            () => {},
+            () => {}
+          );
+        };
 
-      makeRequestAndIgnoreError()
-        .then(() => makeRequestAndIgnoreError())
-        .then(() => {
-          expect(fetch.mock.calls).toHaveLength(1);
-          done();
-        });
+        makeRequestAndIgnoreError()
+          .then(() => makeRequestAndIgnoreError())
+          .then(() => {
+            try {
+              expect(fetch.mock.calls).toHaveLength(1);
+              done();
+            } catch (e) {
+              done(e);
+            }
+          });
+      });
     });
 
-    it('rate-limit reset time is cleared eventually', done => {
+    it('rate-limit reset time is cleared eventually', () => {
       const RateLimitResetAtKey = 'Rate-Limit-Reset-At';
 
       const twoHoursAgoInTicks = Date.now() - 2 * 1000 * 60 * 60;
@@ -276,24 +285,29 @@ describe('fetchIssueCount', () => {
 
       stubRateLimitError(twoHoursAgoInSeconds);
 
-      const makeRequestAndIgnoreError = function() {
-        return fetchIssueCount('owner/repo', 'label').then(() => {}, () => {});
-      };
+      return new Promise((done) => {
+        const makeRequestAndIgnoreError = function () {
+          return fetchIssueCount('owner/repo', 'label').then(
+            () => {},
+            () => {}
+          );
+        };
 
-      makeRequestAndIgnoreError()
-        .then(() => {
-          expect(localStorage.getItem(RateLimitResetAtKey)).not.toBeNull();
-        })
-        .then(() => {
-          const fourItems = [{}, {}, {}, {}];
-          stubFetchResult(fourItems, 'some-updated-value');
+        makeRequestAndIgnoreError()
+          .then(() => {
+            expect(localStorage.getItem(RateLimitResetAtKey)).not.toBeNull();
+          })
+          .then(() => {
+            const fourItems = [{}, {}, {}, {}];
+            stubFetchResult(fourItems, 'some-updated-value');
 
-          return fetchIssueCount('owner/repo', 'label');
-        })
-        .then(() => {
-          expect(localStorage.getItem(RateLimitResetAtKey)).toBeNull();
-          done();
-        });
+            return fetchIssueCount('owner/repo', 'label');
+          })
+          .then(() => {
+            expect(localStorage.getItem(RateLimitResetAtKey)).toBeNull();
+            done();
+          });
+      });
     });
 
     it('handles API error', async () => {
@@ -311,7 +325,7 @@ describe('fetchIssueCount', () => {
       );
 
       const expectedError = new Error(
-        'Could not get issue count from GitHub: ' + message
+        `Could not get issue count from GitHub: ${message}`
       );
 
       await expect(fetchIssueCount('owner/repo', 'label')).rejects.toEqual(

@@ -1,33 +1,35 @@
 /* eslint global-require: "off" */
 /* eslint block-scoped-var: "off" */
 
-/* eslint arrow-parens: [ "error", "as-needed" ] */
+/* eslint no-plusplus: ["error", { "allowForLoopAfterthoughts": true }] */
 /* eslint function-paren-newline: [ "off" ] */
 /* eslint implicit-arrow-linebreak: [ "off" ] */
 /* eslint no-confusing-arrow: [ "off" ] */
+/* eslint no-var: [ "error" ] */
 
 // @ts-nocheck
 
 // required for loading into a NodeJS context
 if (typeof define !== 'function') {
+  /* eslint-disable-next-line no-var */
   var define = require('amdefine')(module);
 }
 
-define(['underscore'], _ => {
-  var applyTagsFilter = function(projects, tagsArray, tags) {
+define(['underscore'], (_) => {
+  const applyTagsFilter = function (projects, tagsArray, tags) {
     if (typeof tags === 'string') {
       tags = tags.split(',');
     }
 
-    tags = _.map(tags, entry => entry && entry.replace(/^\s+|\s+$/g, ''));
+    tags = _.map(tags, (entry) => entry && entry.replace(/^\s+|\s+$/g, ''));
 
     if (!tags || !tags.length || tags[0] == '') {
       return projects;
     }
 
-    var projectNames = _.uniq(
+    const projectNames = _.uniq(
       _.flatten(
-        _.map(tags, tag => {
+        _.map(tags, (tag) => {
           // NOTE
           // tagsMap is currently an array of items when stored in memory and
           // used here, so the previous check which searched based on a prop was
@@ -45,7 +47,7 @@ define(['underscore'], _ => {
       )
     );
 
-    return _.filter(projects, project =>
+    return _.filter(projects, (project) =>
       _.contains(projectNames, project.name)
     );
   };
@@ -60,12 +62,12 @@ define(['underscore'], _ => {
    *              projects in a sorted order
    * @param Array names : This is an array with the given name filters.
    */
-  var applyNamesFilter = function(projects, projectNamesSorted, names) {
+  const applyNamesFilter = function (projects, projectNamesSorted, names) {
     if (typeof names === 'string') {
       names = names.split(',');
     }
 
-    names = _.map(names, entry => entry && entry.replace(/^\s+|\s+$/g, ''));
+    names = _.map(names, (entry) => entry && entry.replace(/^\s+|\s+$/g, ''));
 
     if (!names || !names.length || names[0] == '') {
       return projects;
@@ -77,8 +79,10 @@ define(['underscore'], _ => {
         if (names.indexOf(String(key)) > -1) {
           return entry;
         }
+
+        return undefined;
       }),
-      entry => entry || false
+      (entry) => entry || false
     );
   };
 
@@ -92,38 +96,40 @@ define(['underscore'], _ => {
    *        labels in a sorted order
    * @param Array labels : This is an array with the given label filters.
    */
-  var applyLabelsFilter = function(projects, projectLabelsSorted, labels) {
-    label_indices = labels;
+  const applyLabelsFilter = function (projects, projectLabelsSorted, labels) {
+    let labelIndices = labels;
 
     if (typeof labels === 'string') {
-      label_indices = labels.split(',');
+      labelIndices = labels.split(',');
     }
 
-    labels_indices = _.map(
+    labelIndices = _.map(
       labels,
-      entry => entry && entry.replace(/^\s+|\s+$/g, '')
+      (entry) => entry && entry.replace(/^\s+|\s+$/g, '')
     );
 
     // fallback if labels doesnt exist
-    if (!label_indices || !label_indices.length || labels[0] == '') {
+    if (!labelIndices || !labelIndices.length || labels[0] == '') {
       return projects;
     }
 
     // get the corresponding label from projectLabelsSorted with the indices from earlier
     labels = _.filter(projectLabelsSorted, (entry, key) => {
-      if (label_indices.indexOf(String(key)) > -1) {
+      if (labelIndices.indexOf(String(key)) > -1) {
         return entry;
       }
+
+      return undefined;
     });
 
     // collect the names of all labels into a list
-    label_names = _.collect(labels, label => label.name);
+    const labelNames = _.collect(labels, (label) => label.name);
 
     // find all projects with the given labels via OR
-    results = _.map(label_names, name =>
+    results = _.map(labelNames, (name) =>
       _.filter(
         projects,
-        project =>
+        (project) =>
           String(project.upforgrabs.name).toLowerCase() === name.toLowerCase()
       )
     );
@@ -132,12 +138,12 @@ define(['underscore'], _ => {
     return _.flatten(results, (arr1, arr2) => arr1.append(arr2));
   };
 
-  var TagBuilder = function() {
-    var _tagsMap = {},
-      _orderedTagsMap = null;
+  const TagBuilder = function () {
+    const _tagsMap = {};
+    let _orderedTagsMap = null;
 
-    this.addTag = function(tag, projectName) {
-      var tagLowerCase = tag.toLowerCase();
+    this.addTag = function (tag, projectName) {
+      const tagLowerCase = tag.toLowerCase();
       if (!_.has(_tagsMap, tagLowerCase)) {
         _tagsMap[tagLowerCase] = {
           name: tag,
@@ -145,52 +151,54 @@ define(['underscore'], _ => {
           projects: [],
         };
       }
-      var _entry = _tagsMap[tagLowerCase];
-      _entry.frequency++;
+      const _entry = _tagsMap[tagLowerCase];
+      _entry.frequency += 1;
       _entry.projects.push(projectName);
     };
 
-    this.getTagsMap = function() {
+    this.getTagsMap = function () {
       // https://stackoverflow.com/questions/16426774/underscore-sortby-based-on-multiple-attributes
-      return (_orderedTagsMap =
-        _orderedTagsMap ||
-        _(_tagsMap)
+      if (_orderedTagsMap == null) {
+        _orderedTagsMap = _(_tagsMap)
           .chain()
           .sortBy((tag, key) => key)
-          .sortBy(tag => tag.frequency * -1)
-          .value());
+          .sortBy((tag) => tag.frequency * -1)
+          .value();
+      }
+
+      return _orderedTagsMap;
     };
   };
 
-  var extractTags = function(projectsData) {
-    var tagBuilder = new TagBuilder();
-    _.each(projectsData, entry => {
-      _.each(entry.tags, tag => {
+  const extractTags = function (projectsData) {
+    const tagBuilder = new TagBuilder();
+    _.each(projectsData, (entry) => {
+      _.each(entry.tags, (tag) => {
         tagBuilder.addTag(tag, entry.name);
       });
     });
     return tagBuilder.getTagsMap();
   };
 
-  var extractProjectsAndTags = function(projectsData) {
+  const extractProjectsAndTags = function (projectsData) {
     return {
       projects: projectsData,
       tags: extractTags(projectsData),
     };
   };
 
-  var ProjectsService = function(projectsData) {
-    var _projectsData = extractProjectsAndTags(projectsData);
-    var tagsMap = {};
-    var namesMap = {};
-    var labelsMap = {};
+  const ProjectsService = function (projectsData) {
+    const _projectsData = extractProjectsAndTags(projectsData);
+    const tagsMap = {};
+    const namesMap = {};
+    const labelsMap = {};
 
-    var canStoreOrdering =
+    const canStoreOrdering =
       JSON &&
       sessionStorage &&
       sessionStorage.getItem &&
       sessionStorage.setItem;
-    var ordering = null;
+    let ordering = null;
     if (canStoreOrdering) {
       ordering = sessionStorage.getItem('projectOrder');
       if (ordering) {
@@ -210,65 +218,65 @@ define(['underscore'], _ => {
       }
     }
 
-    var all_projects = _.map(ordering, i => _projectsData.projects[i]);
+    const allProjects = _.map(ordering, (i) => _projectsData.projects[i]);
 
-    var projects = _.filter(all_projects, project =>
+    const projects = _.filter(allProjects, (project) =>
       project.stats ? project.stats['issue-count'] > 0 : true
     );
 
-    _.each(_projectsData.tags, tag => {
+    _.each(_projectsData.tags, (tag) => {
       tagsMap[tag.name.toLowerCase()] = tag;
     });
 
-    _.each(_projectsData.projects, project => {
+    _.each(_projectsData.projects, (project) => {
       if (project.name.toLowerCase) {
         namesMap[project.name.toLowerCase()] = project;
       }
     });
 
-    _.each(_projectsData.projects, project => {
+    _.each(_projectsData.projects, (project) => {
       labelsMap[project.upforgrabs.name.toLowerCase()] = project.upforgrabs;
     });
 
-    this.get = function(tags, names, labels) {
-      var filtered_projects = projects;
+    this.get = function (tags, names, labels) {
+      let filteredProjects = projects;
       if (names && names.length) {
-        filtered_projects = applyNamesFilter(
-          filtered_projects,
+        filteredProjects = applyNamesFilter(
+          filteredProjects,
           this.getNames(),
           names
         );
       }
       if (labels && labels.length) {
-        filtered_projects = applyLabelsFilter(
-          filtered_projects,
+        filteredProjects = applyLabelsFilter(
+          filteredProjects,
           this.getLabels(),
           labels
         );
       }
       if (tags && tags.length) {
-        filtered_projects = applyTagsFilter(
-          filtered_projects,
+        filteredProjects = applyTagsFilter(
+          filteredProjects,
           this.getTags(),
           tags
         );
       }
-      return filtered_projects;
+      return filteredProjects;
     };
 
-    this.getTags = function() {
-      return _.sortBy(tagsMap, entry => entry.name.toLowerCase());
+    this.getTags = function () {
+      return _.sortBy(tagsMap, (entry) => entry.name.toLowerCase());
     };
 
-    this.getNames = function() {
-      return _.sortBy(namesMap, entry => entry.name.toLowerCase());
+    this.getNames = function () {
+      return _.sortBy(namesMap, (entry) => entry.name.toLowerCase());
     };
 
-    this.getLabels = function() {
-      return _.sortBy(labelsMap, entry => entry.name.toLowerCase());
+    this.getLabels = function () {
+      return _.sortBy(labelsMap, (entry) => entry.name.toLowerCase());
     };
 
-    this.getPopularTags = function(popularTagCount) {
+    this.getPopularTags = function (popularTagCount) {
       return _.take(_.values(tagsMap), popularTagCount || 10);
     };
   };

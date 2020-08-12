@@ -10,7 +10,7 @@ tags:
 - oss
 upforgrabs:
   name: up-for-grabs
-  link: https://github.com/techtalk/SpecFlow/labels/up-for-grabs
+  link: https://github.com/SpecFlowOSS/SpecFlow/labels/up-for-grabs
 stats:
-  issue-count: 47
-  last-updated: '2019-10-11T22:23:19Z'
+  issue-count: 49
+  last-updated: '2020-08-06T13:00:43Z'
